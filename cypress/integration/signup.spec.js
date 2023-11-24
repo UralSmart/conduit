@@ -1,6 +1,21 @@
+import meUser from '/cypress/fixtures/meUser.json'
 ///<reference types="cypress" />
 
 describe('Sign up', () => {
+
+    function loginMe() {
+        cy.get('.navbar a[href$="/login"]').click();
+        cy.url().should('include', '/#/login');
+
+        cy.get('.auth-page h1').should('have.text', 'Sign in');
+        cy.get('.auth-page form').should('be.visible');
+
+        cy.get('.auth-page form input[ng-model$=email]').type(meUser.email);
+        cy.get('.auth-page form input[ng-model$=password]').type(meUser.password);
+        cy.get('.auth-page form button[type=submit]').click();
+
+        cy.get('.navbar').should('contain.text', meUser.username);
+    };
 
     beforeEach(() => {
         cy.visit('/');
@@ -13,60 +28,28 @@ describe('Sign up', () => {
 
         cy.get('.auth-page h1').should('have.text', 'Sign up');
         cy.get('.auth-page form').should('be.visible');
-
-        const rnd = Math.round(Math.random() * 8999) + 1000;
-
-        const username = 'user_' + rnd;
-        const email = username + '@gmail.com';
-        cy.get('.auth-page form input[ng-model$=username]').type(username);
-        cy.get('.auth-page form input[ng-model$=email]').type(email);
-        cy.get('.auth-page form input[ng-model$=password]').type('xyzXYZ123_');
+        cy.get('.auth-page form input[ng-model$=username]').type(meUser.username);
+        cy.get('.auth-page form input[ng-model$=email]').type(meUser.email);
+        cy.get('.auth-page form input[ng-model$=password]').type(meUser.password);
         cy.get('.auth-page form button[type=submit]').click();
 
-        cy.get('.navbar').should('contain.text', username);
+        cy.get('.navbar').should('contain.text', meUser.username);
 
     });
 
     it('should do login user', () => {
-
-        cy.get('.navbar a[href$="/login"]').click();
-        cy.url().should('include', '/#/login');
-
-        cy.get('.auth-page h1').should('have.text', 'Sign in');
-        cy.get('.auth-page form').should('be.visible');
-
-        cy.get('.auth-page form input[ng-model$=email]').type('test_anton@gmail.com');
-        cy.get('.auth-page form input[ng-model$=password]').type('xyzXYZ123_');
-        cy.get('.auth-page form button[type=submit]').click();
-
-        cy.get('.navbar').should('contain.text', 'test_anton');
-
+        loginMe();
     });
 
     it('should do logout user', () => {
 
-        const username = 'test_anton';
-
-        // for login
-        cy.get('.navbar a[href$="/login"]').click();
-        cy.url().should('include', '/#/login');
-
-        cy.get('.auth-page h1').should('have.text', 'Sign in');
-        cy.get('.auth-page form').should('be.visible');
-
-        cy.get('.auth-page form input[ng-model$=email]').type('test_anton@gmail.com');
-        cy.get('.auth-page form input[ng-model$=password]').type('xyzXYZ123_');
-        cy.get('.auth-page form button[type=submit]').click();
-
-        cy.get('.navbar').should('contain.text', username);
-
+        loginMe();
         // for logout
         cy.get('.navbar a[href$="/settings"]').click();
         cy.get('.settings-page h1').should('have.text', 'Your Settings');
-        // TODO: improve selector to button[data-cy=logout]
         cy.get('.settings-page button[ng-click*=logout]').click();
 
-        cy.get('.navbar').should('not.contain.text', username);
+        cy.get('.navbar').should('not.contain.text', meUser.username);
     });
 
 });
